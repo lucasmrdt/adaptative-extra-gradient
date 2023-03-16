@@ -3,31 +3,29 @@ import numpy as np
 from .problem import Problem
 
 
-class BilinearMinMax(Problem):
+class CovMatrixLearning(Problem):
     def __init__(self, dim=2, space=[-10, 10], seed=42):
         np.random.seed(seed)
+        self.d = dim
         self.cov = np.random.randn(dim, dim)
-        super().__init__(opt=self.opt, dim=(dim, 2), space=space)
+        super().__init__(opt=self.cov, dim=(2, dim, dim), space=space)
         print(self.space)
 
-    def fx(self, x):
-        if x.shape[-1] != self.dim[0]:
-            x = x[..., None]
-        opt_1, opt_2 = self.opt
-        return np.einsum('...i,...ij,...j->...', x[..., 0, :] - opt_1, self.A, x[..., 1, :] - opt_2)
-
     def dfx(self, x):
-        opt_1, opt_2 = self.opt
-        should_reshape = (x.shape[-1] != self.dim[0])
-        if should_reshape:
-            # add new axis (when dim=1): (..., 2) -> (..., 2, 1)
-            x = x[..., None]
-        grad_1 = (x[..., 1, :] - opt_2) @ self.A.T
-        grad_2 = -(x[..., 0, :] - opt_1) @ self.A
-        if should_reshape:
-            # remove the added axis (when dim=1): (..., 1) -> (...)
-            grad_1, grad_2 = grad_1[..., 0], grad_2[..., 0]
-        grad = np.stack((grad_1, grad_2), axis=-1)
+        print('ok')
+        theta, phi = x[..., 0, :, :], x[..., 1, :, :]
+        x = np.random.multivariate_normal(
+            np.zeros(self.d), self.cov, 128)
+        z = np.random.multivariate_normal(
+            np.zeros(self.d), self.cov, 128)
+        # grad_1 = x.T@x
+        print(phi.shape, theta.shape, z.shape)
+        zz = np.einsum('...i,...j->...ij', z, z)
+        # grad_1 = np.einsum('...ij,...j->...i', phi.T + phi, theta @
+        grad_1 = (phi.T + phi)@theta@z@z.T
+        print(grad_1.shape)
+        grad_2 = x@x.T
+        grad = np.stack((grad_1, grad_2), axis=-2)
         return grad
 
     def proj(self, x, grad):

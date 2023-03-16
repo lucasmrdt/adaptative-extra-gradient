@@ -30,7 +30,7 @@ class Problem:
 
         self.metrics = {
             Metric.OPT_DIST: lambda x: np.min([
-                norm(x - opt, start_idx=-len(self.dim))**2 for opt in self.opts
+                norm(x - opt, start_idx=-len(self.dim))for opt in self.opts
             ], axis=0),
             Metric.GRAD_NORM: lambda x: norm(self.dfx(x), start_idx=-len(self.dim)),
         }
