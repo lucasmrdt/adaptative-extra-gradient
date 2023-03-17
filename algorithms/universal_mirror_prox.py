@@ -3,7 +3,8 @@ from utils import norm
 
 
 def universal_mirror_prox(x0, df, proj, n, ergodic=True, **_):
-    D = np.sqrt(2)
+    # D = np.sqrt(2)
+    D = .5
     G0 = 2
 
     x_t_sum = 0

@@ -28,11 +28,17 @@ class Problem:
         if opt is not None and opt.ndim == len(dim):
             self.opts = opt[None, ...]  # opt is a list of best points
 
-        self.metrics = {
-            Metric.OPT_DIST: lambda x: np.min([
+        def metric_opt_dist(x):
+            return np.min([
                 norm(x - opt, start_idx=-len(self.dim))for opt in self.opts
-            ], axis=0),
-            Metric.GRAD_NORM: lambda x: norm(self.dfx(x), start_idx=-len(self.dim)),
+            ], axis=0)
+
+        def metric_grad_norm(x):
+            return norm(self.dfx(x), start_idx=-len(self.dim))**2
+
+        self.metrics = {
+            Metric.OPT_DIST: metric_opt_dist,
+            Metric.GRAD_NORM: metric_grad_norm,
         }
 
     def plot_fct(self, ax=None):
@@ -49,11 +55,11 @@ class Problem:
             for opt in self.opts:
                 ax.scatter(*opt, marker='x', color='red', s=200)
 
-    def plot_trials_convergence(self, trials, metric, title='', ax=None, show_legend=False, show_metric_title=True):
+    def plot_trials_convergence(self, trials, metric, title='', ax=None, show_legend=True, show_metric_title=True):
         assert metric in self.metrics
 
         if ax is None:
-            ax = plt.figure(figsize=(5, 5)).gca()
+            ax = plt.figure(figsize=(5, 5), dpi=300).gca()
 
         fct = self.metrics[metric]
         for algo, algo_trials in trials.items():
@@ -62,16 +68,18 @@ class Problem:
             plot_scalars(values, label=algo, ax=ax)
 
         if show_legend:
-            ax.legend(loc='center left', bbox_to_anchor=(1.01, .5))
+            ax.legend(loc='lower center', bbox_to_anchor=(.5, -.25), ncol=3)
         if show_metric_title:
             ax.set_ylabel(metric)
         ax.set_title(title)
         ax.set_xlabel('iteration')
         ax.set_yscale('log')
+        ax.set_xscale('log')
 
     def compare_trials_path(self, trials, title='', axs=None):
         if axs is None:
-            _, axs = plt.subplots(1, len(trials), figsize=(len(trials) * 5, 5))
+            _, axs = plt.subplots(1, len(trials), figsize=(
+                len(trials) * 5, 5), dpi=300)
 
         for i, (algo, algo_trials) in enumerate(trials.items()):
             self.plot_fct(axs[i])

@@ -19,7 +19,7 @@ class BattleOfTheSexesPb(Problem):
         opt = np.array([
             [0, 0],  # foot
             [1, 1],  # theatre
-            [2/3, 1/2],  # mixed
+            [2/3, 1/3],  # mixed
         ])
         super().__init__(dim=(2,), space=[0, 1], opt=opt)
 
