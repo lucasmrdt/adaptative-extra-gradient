@@ -59,7 +59,7 @@ class Problem:
         assert metric in self.metrics
 
         if ax is None:
-            ax = plt.figure(figsize=(5, 5), dpi=300).gca()
+            ax = plt.figure(figsize=(5, 5)).gca()
 
         fct = self.metrics[metric]
         for algo, algo_trials in trials.items():
@@ -79,7 +79,7 @@ class Problem:
     def compare_trials_path(self, trials, title='', axs=None):
         if axs is None:
             _, axs = plt.subplots(1, len(trials), figsize=(
-                len(trials) * 5, 5), dpi=300)
+                len(trials) * 5, 5))
 
         for i, (algo, algo_trials) in enumerate(trials.items()):
             self.plot_fct(axs[i])

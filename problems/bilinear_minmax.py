@@ -5,9 +5,10 @@ from .problem import Problem
 
 
 class BilinearMinMax(Problem):
-    def __init__(self, dim=100, space=[-1, 1], seed=42):
+    def __init__(self, dim=100, space=[-1, 1], seed=42, noisy=False):
         np.random.seed(seed)
-        self.A = np.random.multivariate_normal(np.zeros(dim), np.eye(dim), dim)
+        self.noisy = noisy
+        self.A = np.random.randn(dim, dim)
         self.A /= norm(self.A)
         opt_1 = np.random.randn(dim)
         opt_2 = np.random.randn(dim)
@@ -25,4 +26,7 @@ class BilinearMinMax(Problem):
 
     def proj(self, x, grad):
         x = x + grad
+        if self.noisy:
+            noise = np.random.randn(*x.shape)
+            x = x + noise
         return x
